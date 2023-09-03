@@ -4,7 +4,7 @@ const verificarSenha = (req, res, next) => {
 
   if (!senha_banco) {
     return res
-      .status(400)
+      .status(401)
       .json({ Mensagem: "Por favor, informe a senha do banco" });
   }
 
