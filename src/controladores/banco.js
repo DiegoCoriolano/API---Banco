@@ -1,13 +1,6 @@
 const { contas } = require("../bancodedados");
 
-const listarContas = (req, res) => {
-  if (contas.length === 0) {
-    return res.status(204).json(contas);
-  }
-  return res.status(200).json(contas);
-};
-
-const criarConta = (req, res) => {
+function verificarDados(req, res) {
   const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
 
   if (!nome) {
@@ -37,6 +30,19 @@ const criarConta = (req, res) => {
   if (!senha) {
     return res.status(400).json({ Mensagem: "O campo senha é obrigatório." });
   }
+}
+
+const listarContas = (req, res) => {
+  if (contas.length === 0) {
+    return res.status(204).json(contas);
+  }
+  return res.status(200).json(contas);
+};
+
+const criarConta = (req, res) => {
+  const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
+
+  verificarDados(req, res);
 
   const verificaCPF = contas.find((conta) => {
     return conta.cpf === cpf;
@@ -54,7 +60,7 @@ const criarConta = (req, res) => {
     return res.status(400).json({ Mensagem: "Este email já está cadastrado." });
   }
 
-  let contadorID = contas.length === 0 ? 0 : contas[contas.length - 1].id + 1;
+  let contadorID = contas.length === 0 ? 1 : contas[contas.length].id + 1;
 
   contas.push({
     id: contadorID,
@@ -70,4 +76,64 @@ const criarConta = (req, res) => {
   return res.status(201).json();
 };
 
-module.exports = { listarContas, criarConta };
+const atualizarUsuário = (req, res) => {
+  const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
+
+  verificarDados(req, res);
+
+  const { id } = req.params;
+  const verificaID = contas.find((conta) => {
+    return conta.id === Number(id);
+  });
+
+  if (!verificaID || isNaN(id)) {
+    return res
+      .status(400)
+      .json({
+        Mensagem: "Esta conta não existe ou o ID é inválido. Insira outro ID.",
+      });
+  }
+
+  const verificaCPFOutrasContas = contas
+    .filter((outrasContas) => {
+      return outrasContas.id !== Number(id);
+    })
+    .find((conta) => {
+      return conta.cpf === cpf;
+    });
+
+  const verificaEmailOutrasContas = contas
+    .filter((outrasContas) => {
+      return outrasContas.id !== Number(id);
+    })
+    .find((conta) => {
+      return conta.email === email;
+    });
+
+  if (verificaCPFOutrasContas) {
+    return res
+      .status(400)
+      .json({ Mensagem: "Este CPF já está cadastrado em outra conta." });
+  }
+
+  if (verificaEmailOutrasContas) {
+    return res
+      .status(400)
+      .json({ Mensagem: "Este email já está cadastrado em outra conta." });
+  }
+
+  const contaDoUsuario = contas.find((conta) => {
+    return conta.id === Number(id);
+  });
+
+  contaDoUsuario.nome = nome;
+  contaDoUsuario.cpf = cpf;
+  contaDoUsuario.data_nascimento = data_nascimento;
+  contaDoUsuario.telefone = telefone;
+  contaDoUsuario.email = email;
+  contaDoUsuario.senha = senha;
+
+  return res.status(200).json();
+};
+
+module.exports = { listarContas, criarConta, atualizarUsuário };
