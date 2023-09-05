@@ -1,4 +1,4 @@
-let { contas, depositos } = require("../bancodedados");
+let { contas, depositos, transferencias } = require("../bancodedados");
 
 const listarContas = (req, res) => {
   if (contas.length === 0) {
@@ -128,16 +128,15 @@ const depositar = (req, res) => {
 
   if (!numero_conta || isNaN(numero_conta) || !valor) {
     res.status(400).json({
-      Mensagem:
-        "Número da conta inválido. O número da conta e o valor são obrigatórios!.",
+      Mensagem: "O número da conta e o valor são obrigatórios!.",
     });
   }
 
-  const contaASeDepositar = contas.find((conta) => {
+  const verificarConta = contas.find((conta) => {
     return (conta.id = Number(numero_conta));
   });
 
-  if (!contaASeDepositar) {
+  if (!verificarConta) {
     return res
       .status(400)
       .json({ Mensagem: "Esta conta bancária não existe." });
@@ -150,14 +149,151 @@ const depositar = (req, res) => {
   }
 
   depositos.push({
-    data: new Date(),
+    data: new Date("yyyy-MM-dd hh:mm:ss"),
     numero_conta: numero_conta,
     valor: valor,
   });
 
-  contaASeDepositar.saldo += valor;
+  verificarConta.saldo += valor;
 
   return res.status(201).json();
+};
+
+const sacar = (req, res) => {
+  const { numero_conta, valor, senha } = req.body;
+
+  if (!numero_conta || isNaN(numero_conta) || !valor || !senha) {
+    res.status(400).json({
+      Mensagem: "O número da conta, valor e senha são obrigatórios!.",
+    });
+  }
+
+  const verificarConta = contas.find((conta) => {
+    return (conta.id = Number(numero_conta));
+  });
+
+  if (!verificarConta) {
+    return res
+      .status(400)
+      .json({ Mensagem: "Esta conta bancária não existe." });
+  }
+
+  if (valor <= 0) {
+    res.status(400).json({
+      Mensagem: "Valor do depósito precisa ser superior a 0.",
+    });
+  }
+
+  if (senha !== verificarConta.senha) {
+    return res.status(400).json({ Mensagem: "Senha incorreta" });
+  }
+
+  if (verificarConta.saldo <= valor) {
+    return res
+      .status(400)
+      .json({ Mensagem: "O saldo é inferior ao valor solicitado." });
+  }
+
+  saques.push({
+    data: new Date("yyyy-MM-dd hh:mm:ss"),
+    numero_conta: numero_conta,
+    valor,
+  });
+
+  verificarConta.saldo -= valor;
+
+  return res.status(200).json();
+};
+
+const transferir = (req, res) => {
+  const { numero_conta_origem, numero_conta_destino, valor, senha } = req.body;
+
+  if (
+    !numero_conta_origem ||
+    isNaN(numero_conta_origem) ||
+    !numero_conta_destino ||
+    isNaN(numero_conta_destino) ||
+    !valor ||
+    !senha
+  ) {
+    res.status(400).json({
+      Mensagem:
+        "O número da conta de origem, numero da conta de destino, valor e senha são obrigatórios!.",
+    });
+  }
+
+  const verificarContaOrigem = contas.find((conta) => {
+    return (conta.id = Number(numero_conta));
+  });
+
+  if (!verificarContaOrigem) {
+    return res
+      .status(400)
+      .json({ Mensagem: "A conta bancária de origem não existe." });
+  }
+
+  const verificarContaDestino = contas
+    .filter((conta) => {
+      return conta.id !== Number(numero_conta);
+    })
+    .find((conta) => {
+      return (conta.id = Number(numero_conta));
+    });
+
+  if (!verificarContaDestino) {
+    return res
+      .status(400)
+      .json({ Mensagem: "A conta bancária de destino não existe." });
+  }
+
+  if (valor <= 0) {
+    res.status(400).json({
+      Mensagem: "Valor da transferência precisa ser superior a 0.",
+    });
+  }
+
+  if (senha !== verificarContaOrigem.senha) {
+    return res.status(400).json({ Mensagem: "Senha incorreta" });
+  }
+
+  if (verificarContaOrigem.saldo <= valor) {
+    return res.status(400).json({
+      Mensagem:
+        "Saldo insuficiente. O saldo é inferior ao valor solicitado para transferência.",
+    });
+  }
+
+  transferencias.push({
+    data: new Date("yyyy-MM-dd hh:mm:ss"),
+    numero_conta_origem,
+    numero_conta_destino,
+    valor,
+  });
+
+  verificarContaOrigem -= valor;
+  verificarContaDestino += valor;
+
+  return res.status(200).json();
+};
+
+const exibirSaldo = (req, res) => {
+  const { numero_conta, senha } = req.query;
+
+  const verificarConta = contas.find((conta) => {
+    return (conta.id = Number(numero_conta));
+  });
+
+  if (!verificarConta) {
+    return res
+      .status(400)
+      .json({ Mensagem: "Esta conta bancária não existe." });
+  }
+
+  if (senha !== verificarConta.senha) {
+    return res.status(400).json({ Mensagem: "Senha incorreta" });
+  }
+
+  return res.status(200).json(verificarConta.saldo);
 };
 
 module.exports = {
@@ -166,4 +302,7 @@ module.exports = {
   atualizarUsuário,
   deletarConta,
   depositar,
+  sacar,
+  transferir,
+  exibirSaldo,
 };

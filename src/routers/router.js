@@ -7,6 +7,9 @@ const {
   atualizarUsuário,
   deletarConta,
   depositar,
+  sacar,
+  transferir,
+  exibirSaldo,
 } = require("../controladores/banco");
 
 router.get("/contas", verificarSenha, listarContas);
@@ -19,5 +22,8 @@ router.put(
 );
 router.delete("/contas/:numeroConta", verificarSenha, deletarConta);
 router.post("/transacoes/depositar", verificarSenha, depositar);
+router.post("/transacoes/sacar", verificarSenha, sacar);
+router.post("/transacoes/transferir", verificarSenha, transferir);
+router.get("/contas/saldo", verificarSenha, exibirSaldo);
 
 module.exports = router;
