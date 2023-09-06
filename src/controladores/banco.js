@@ -126,12 +126,6 @@ const deletarConta = (req, res) => {
 const depositar = (req, res) => {
   const { numero_conta, valor } = req.body;
 
-  if (!numero_conta || isNaN(numero_conta) || !valor) {
-    res.status(400).json({
-      Mensagem: "O número da conta e o valor são obrigatórios!.",
-    });
-  }
-
   const verificarConta = contas.find((conta) => {
     return conta.numero === Number(numero_conta);
   });
@@ -143,7 +137,7 @@ const depositar = (req, res) => {
   }
 
   if (valor <= 0) {
-    res.status(400).json({
+    return res.status(400).json({
       Mensagem: "Valor do depósito precisa ser superior a 0.",
     });
   }
@@ -162,10 +156,8 @@ const depositar = (req, res) => {
 const sacar = (req, res) => {
   const { numero_conta, valor, senha } = req.body;
 
-  if (!numero_conta || isNaN(numero_conta) || !valor || !senha) {
-    res.status(400).json({
-      Mensagem: "O número da conta, valor e senha são obrigatórios!.",
-    });
+  if (!senha) {
+    return res.status(400).json({ Mensagem: "Senha é obrigatório!" });
   }
 
   const verificarConta = contas.find((conta) => {
@@ -179,7 +171,7 @@ const sacar = (req, res) => {
   }
 
   if (valor <= 0) {
-    res.status(400).json({
+    return res.status(400).json({
       Mensagem: "Valor do depósito precisa ser superior a 0.",
     });
   }

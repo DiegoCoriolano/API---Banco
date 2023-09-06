@@ -46,7 +46,25 @@ function verificarDados(req, res, next) {
     return res.status(400).json({ Mensagem: "O campo senha é obrigatório." });
   }
 
-  next();
+  if ((nome, cpf, data_nascimento, telefone, email, senha)) {
+    next();
+  }
 }
 
-module.exports = { verificarSenhaBanco, verificarDados };
+const verificarNumeroContaEValor = (req, res, next) => {
+  const { numero_conta, valor } = req.body;
+
+  if (!numero_conta || isNaN(numero_conta) || !valor) {
+    res.status(400).json({
+      Mensagem: "O número da conta e o valor são obrigatórios!.",
+    });
+  } else {
+    next();
+  }
+};
+
+module.exports = {
+  verificarSenhaBanco,
+  verificarDados,
+  verificarNumeroContaEValor,
+};
