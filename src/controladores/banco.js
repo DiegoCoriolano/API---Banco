@@ -13,11 +13,11 @@ const criarConta = (req, res) => {
   const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
 
   const verificaCPF = contas.find((conta) => {
-    return conta.cpf === cpf;
+    return conta.usuario.cpf === cpf;
   });
 
   const verificaEmail = contas.find((conta) => {
-    return conta.email === email;
+    return conta.usuario.email === email;
   });
 
   if (verificaCPF) {
@@ -34,7 +34,7 @@ const criarConta = (req, res) => {
   contas.push({
     numero: contadorID,
     saldo: 0,
-    usuarios: { nome, cpf, data_nascimento, telefone, email, senha },
+    usuario: { nome, cpf, data_nascimento, telefone, email, senha },
   });
 
   return res.status(201).json();
@@ -68,7 +68,7 @@ const atualizarUsuário = (req, res) => {
       return outrasContas.numero !== Number(numeroConta);
     })
     .find((conta) => {
-      return conta.email === email;
+      return conta.usuario.email === email;
     });
 
   if (verificaCPFOutrasContas) {
@@ -87,12 +87,12 @@ const atualizarUsuário = (req, res) => {
     return conta.numero === Number(numeroConta);
   });
 
-  contaDoUsuario.usuarios.nome = nome;
-  contaDoUsuario.usuarios.cpf = cpf;
-  contaDoUsuario.usuarios.data_nascimento = data_nascimento;
-  contaDoUsuario.usuarios.telefone = telefone;
-  contaDoUsuario.usuarios.email = email;
-  contaDoUsuario.usuarios.senha = senha;
+  contaDoUsuario.usuario.nome = nome;
+  contaDoUsuario.usuario.cpf = cpf;
+  contaDoUsuario.usuario.data_nascimento = data_nascimento;
+  contaDoUsuario.usuario.telefone = telefone;
+  contaDoUsuario.usuario.email = email;
+  contaDoUsuario.usuario.senha = senha;
 
   return res.status(200).json();
 };
@@ -184,7 +184,7 @@ const sacar = (req, res) => {
     });
   }
 
-  if (senha !== verificarConta.usuarios.senha) {
+  if (senha !== verificarConta.usuario.senha) {
     return res.status(400).json({ Mensagem: "Senha incorreta" });
   }
 
@@ -258,7 +258,7 @@ const transferir = (req, res) => {
     });
   }
 
-  if (senha !== verificarContaOrigem.usuarios.senha) {
+  if (senha !== verificarContaOrigem.usuario.senha) {
     return res.status(400).json({ Mensagem: "Senha incorreta" });
   }
 
@@ -301,7 +301,7 @@ const exibirSaldo = (req, res) => {
       .json({ Mensagem: "Esta conta bancária não existe." });
   }
 
-  if (senha !== verificarConta.usuarios.senha) {
+  if (senha !== verificarConta.usuario.senha) {
     return res.status(400).json({ Mensagem: "Senha incorreta" });
   }
 
@@ -327,7 +327,7 @@ const extrato = (req, res) => {
       .json({ Mensagem: "Esta conta bancária não existe." });
   }
 
-  if (senha !== verificarConta.usuarios.senha) {
+  if (senha !== verificarConta.usuario.senha) {
     return res.status(400).json({ Mensagem: "Senha incorreta" });
   }
 
