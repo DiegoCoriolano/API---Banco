@@ -1,4 +1,4 @@
-const verificarSenha = (req, res, next) => {
+const verificarSenhaBanco = (req, res, next) => {
   const { senha_banco } = req.query;
   const { banco } = require("../bancodedados");
 
@@ -49,4 +49,4 @@ function verificarDados(req, res, next) {
   next();
 }
 
-module.exports = { verificarSenha, verificarDados };
+module.exports = { verificarSenhaBanco, verificarDados };
