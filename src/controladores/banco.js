@@ -62,7 +62,6 @@ const atualizarUsuário = (req, res) => {
     .find((conta) => {
       return conta.usuario.cpf === cpf;
     });
-
   const verificaEmailOutrasContas = contas
     .filter((outrasContas) => {
       return outrasContas.numero !== Number(numeroConta);
