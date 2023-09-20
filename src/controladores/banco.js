@@ -60,7 +60,7 @@ const atualizarUsuário = (req, res) => {
       return outrasContas.numero !== Number(numeroConta);
     })
     .find((conta) => {
-      return conta.cpf === cpf;
+      return conta.usuario.cpf === cpf;
     });
 
   const verificaEmailOutrasContas = contas
